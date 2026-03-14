@@ -200,6 +200,12 @@ function BBF.HideFrames()
         local playerLeaderIconAlpha = BetterBlizzFramesDB.hidePlayerLeaderIcon and 0 or 1
         PlayerLeaderIcon:SetAlpha(playerLeaderIconAlpha)
 
+        local leaderIconAlpha = BetterBlizzFramesDB.hideTargetLeaderIcon and 0 or 1
+        for i = 1, 4 do
+            local icon = _G["PartyMemberFrame" .. i .. "LeaderIcon"]
+            if icon then icon:SetAlpha(leaderIconAlpha) end
+        end
+
         -- PvP Timer Text
         if BetterBlizzFramesDB.hidePvpTimerText then
             --PlayerPVPTimerText:SetParent(hiddenFrame)
@@ -398,6 +404,12 @@ function BBF.HideFrames()
     UpdateLevelTextVisibility(TargetFrameTextureFrameLevelText, "target")
     --UpdateLevelTextVisibility(FocusFrameTextureFrameLevelText, "focus")
     UpdateLevelTextVisibility(PlayerLevelText, "player")
+    for i = 1, 4 do
+        local levelText = _G["PartyMemberFrame" .. i .. "LevelText"]
+        if levelText then
+            UpdateLevelTextVisibility(levelText, "party" .. i)
+        end
+    end
 
 
     if BetterBlizzFramesDB.hideLevelText and not BBF.classicFramesLevelHide then

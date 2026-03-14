@@ -165,6 +165,13 @@ function BBF.DarkModeUnitframeBorders()
             hooksecurefunc("TargetFrame_UpdateAuras", function(self)
                 UpdateFrameAuras(self)
             end)
+            if UnitFrame_UpdateAuras then
+                hooksecurefunc("UnitFrame_UpdateAuras", function(self)
+                    if self:GetName() and self:GetName():find("PartyMemberFrame") then
+                        UpdateFrameAuras(self)
+                    end
+                end)
+            end
         else
             hooksecurefunc(TargetFrame, "UpdateAuras", function(self)
                 UpdateFrameAuras(self)
@@ -487,10 +494,10 @@ function BBF.DarkmodeFrames(bypass)
         PlayerFrameTexture,
         --PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture,
         --PlayerFrame.PlayerFrameContainer.VehicleFrameTexture,
-        -- PartyFrame.MemberFrame1.Texture,
-        -- PartyFrame.MemberFrame2.Texture,
-        -- PartyFrame.MemberFrame3.Texture,
-        -- PartyFrame.MemberFrame4.Texture,
+        _G["PartyMemberFrame1Texture"],
+        _G["PartyMemberFrame2Texture"],
+        _G["PartyMemberFrame3Texture"],
+        _G["PartyMemberFrame4Texture"],
         --PaladinPowerBarFrame.Background,
         --PaladinPowerBarFrame.ActiveTexture,
     }) do

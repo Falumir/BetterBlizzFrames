@@ -1159,8 +1159,8 @@ function BBF.AllNameChanges()
         local frames = {
             PartyMemberFrame1,
             PartyMemberFrame2,
-            PartyMemberFrame2,
-            PartyMemberFrame2,
+            PartyMemberFrame3,
+            PartyMemberFrame4,
         }
 
         for _, frame in ipairs(frames) do

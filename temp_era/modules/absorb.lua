@@ -719,10 +719,19 @@ function BBF.UpdateValidUnits()
         CataAbsorb.unitFrames["player"] = PlayerFrame
         CataAbsorb.unitFrames["target"] = TargetFrame
         --CataAbsorb.unitFrames["focus"] = FocusFrame
+        for i = 1, 4 do
+            local frame = _G["PartyMemberFrame"..i]
+            if frame then
+                CataAbsorb.unitFrames["party"..i] = frame
+            end
+        end
     else
         CataAbsorb.unitFrames["player"] = nil
         CataAbsorb.unitFrames["target"] = nil
         --CataAbsorb.unitFrames["focus"] = nil
+        for i = 1, 4 do
+            CataAbsorb.unitFrames["party"..i] = nil
+        end
     end
 
     -- Update compact unit frames (raid)

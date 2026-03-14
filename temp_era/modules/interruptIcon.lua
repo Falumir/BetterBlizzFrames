@@ -148,6 +148,12 @@ local function OnEvent(self, event, unit)
     elseif event == "SPELL_UPDATE_COOLDOWN" then
         UpdateInterruptIcon(TargetFrameSpellBar.interruptIconFrame)
         --UpdateInterruptIcon(FocusFrameSpellBar.interruptIconFrame)
+        for i = 1, 4 do
+            local spellBar = _G["PartyMemberFrame" .. i .. "SpellBar"]
+            if spellBar and spellBar.interruptIconFrame then
+                UpdateInterruptIcon(spellBar.interruptIconFrame)
+            end
+        end
     end
 end
 
@@ -166,6 +172,16 @@ function BBF.ToggleCastbarInterruptIcon()
     --     FocusFrameSpellBar.interruptIconFrame:Hide()
     --     FocusFrameSpellBar.interruptIconFrame = nil
     -- end
+    -- Teardown party frames
+    for i = 1, 4 do
+        local spellBar = _G["PartyMemberFrame" .. i .. "SpellBar"]
+        if spellBar and spellBar.interruptIconFrame then
+            spellBar.interruptIconFrame:UnregisterAllEvents()
+            spellBar.interruptIconFrame:SetScript("OnEvent", nil)
+            spellBar.interruptIconFrame:Hide()
+            spellBar.interruptIconFrame = nil
+        end
+    end
 
     if not BetterBlizzFramesDB.castBarInterruptIconEnabled then
         return
@@ -190,6 +206,23 @@ function BBF.ToggleCastbarInterruptIcon()
     --     FocusFrameSpellBar.interruptIconFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
     --     FocusFrameSpellBar.interruptIconFrame:SetScript("OnEvent", OnEvent)
     -- end
+
+    -- Setup party frames
+    if BetterBlizzFramesDB.castBarInterruptIconParty then
+        for i = 1, 4 do
+            local spellBar = _G["PartyMemberFrame" .. i .. "SpellBar"]
+            if spellBar then
+                local unit = "party" .. i
+                spellBar.interruptIconFrame = CreateInterruptIconFrame(spellBar)
+                spellBar.interruptIconFrame.unit = unit
+                spellBar.interruptIconFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", unit)
+                spellBar.interruptIconFrame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", unit)
+                spellBar.interruptIconFrame:RegisterUnitEvent("UNIT_AURA", unit)
+                spellBar.interruptIconFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+                spellBar.interruptIconFrame:SetScript("OnEvent", OnEvent)
+            end
+        end
+    end
 end
 
 -- Function to update settings
@@ -252,6 +285,32 @@ local function UpdateSettings()
     --         FocusFrameSpellBar.interruptIconFrame:Hide()
     --     end
     -- end
+    for i = 1, 4 do
+        local spellBar = _G["PartyMemberFrame" .. i .. "SpellBar"]
+        if spellBar and spellBar.interruptIconFrame then
+            if BetterBlizzFramesDB.castBarInterruptIconParty then
+                local frame = spellBar.interruptIconFrame
+                frame:ClearAllPoints()
+                frame:SetPoint("CENTER", spellBar, BetterBlizzFramesDB.castBarInterruptIconAnchor, BetterBlizzFramesDB.castBarInterruptIconXPos+45, BetterBlizzFramesDB.castBarInterruptIconYPos)
+                frame:SetScale(BetterBlizzFramesDB.castBarInterruptIconScale)
+                frame:Show()
+                if BetterBlizzFramesDB.interruptIconBorder then
+                    if not frame.border then
+                        frame.border = frame:CreateTexture(nil, "OVERLAY")
+                        frame.border:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-ActionBar-IconFrame-AddRow-Light")
+                        frame.border:SetSize(45, 45)
+                        frame.border:SetPoint("CENTER", frame, "CENTER", 2, -2)
+                        frame.border:SetDrawLayer("OVERLAY", 7)
+                    end
+                    frame.border:SetAlpha(1)
+                elseif frame.border then
+                    frame.border:SetAlpha(0)
+                end
+            else
+                spellBar.interruptIconFrame:Hide()
+            end
+        end
+    end
 end
 
 -- Function to call when user changes settings
@@ -263,4 +322,12 @@ function BBF.UpdateInterruptIconSettings()
     -- if BetterBlizzFramesDB.castBarInterruptIconFocus and FocusFrameSpellBar.interruptIconFrame then
     --     UpdateInterruptIcon(FocusFrameSpellBar.interruptIconFrame)
     -- end
+    if BetterBlizzFramesDB.castBarInterruptIconParty then
+        for i = 1, 4 do
+            local spellBar = _G["PartyMemberFrame" .. i .. "SpellBar"]
+            if spellBar and spellBar.interruptIconFrame then
+                UpdateInterruptIcon(spellBar.interruptIconFrame)
+            end
+        end
+    end
 end

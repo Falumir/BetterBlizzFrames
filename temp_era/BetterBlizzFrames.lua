@@ -914,6 +914,12 @@ function BBF.HookUnitFrameTextures()
             ApplyTextureChange("health", PlayerFrameHealthBar)
             ApplyTextureChange("health", PetFrame.healthbar, PetFrame)
             ApplyTextureChange("health", TargetFrameHealthBar, TargetFrame)
+            for i = 1, 4 do
+                local frame = _G["PartyMemberFrame"..i]
+                if frame and frame.healthbar then
+                    ApplyTextureChange("health", frame.healthbar, frame)
+                end
+            end
 
             if PlayerReputationFrame then
                 ApplyTextureChange("health", PlayerReputationFrame.texture, PlayerFrame)
@@ -937,6 +943,12 @@ function BBF.HookUnitFrameTextures()
                 TargetFrameToTHealthBar,
                 --FocusFrameToTHealthBar
             }
+            for i = 1, 4 do
+                local frame = _G["PartyMemberFrame"..i]
+                if frame and frame.healthbar then
+                    tinsert(healthbars, frame.healthbar)
+                end
+            end
 
             for _, healthbar in ipairs(healthbars) do
                 healthbar:SetStatusBarColor(0,1,0)
@@ -956,6 +968,13 @@ function BBF.HookUnitFrameTextures()
             ApplyTextureChange("mana", PetFrame.manabar)
             ApplyTextureChange("mana", TargetFrameManaBar)
             --ApplyTextureChange("mana", FocusFrameManaBar)
+            for i = 1, 4 do
+                local frame = _G["PartyMemberFrame"..i]
+                if frame and frame.manabar then
+                    manaTextureUnits["party"..i] = true
+                    ApplyTextureChange("mana", frame.manabar)
+                end
+            end
         end
 
         -- Hook Target of targets Manabars
@@ -1448,6 +1467,12 @@ function BBF.UnitFrameBackgroundTexture()
     BBF.AddBackgroundTextureToUnitFrames(TargetFrameToT, true)
     --BBF.AddBackgroundTextureToUnitFrames(FocusFrameToT, true)
     BBF.AddBackgroundTextureToUnitFrames(PetFrame, true)
+    for i = 1, 4 do
+        local frame = _G["PartyMemberFrame" .. i]
+        if frame then
+            BBF.AddBackgroundTextureToUnitFrames(frame, true)
+        end
+    end
 end
 
 -- Event registration for PLAYER_LOGIN

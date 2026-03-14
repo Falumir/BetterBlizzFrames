@@ -425,6 +425,9 @@ local function ShouldShowBuff(unit, auraData, frameType)
     --         end
     --     end
     -- Player Buffs and Debuffs
+    elseif frameType == "party" then
+        -- reuse target logic
+        return ShouldShowBuff(unit, auraData, "target")
     else
         if frameType == "playerBuffFrame" then
             -- Buffs
@@ -1131,7 +1134,7 @@ local function AdjustAuras(self, frameType)
     local buffs, debuffs = {}, {}
     local addedGroups = {}
 
-    local auraGlowsEnabled = (frameType == "target" and targetAuraGlows) or (frameType == "focus" and focusAuraGlows)
+    local auraGlowsEnabled = ((frameType == "target" or frameType == "party") and targetAuraGlows) or (frameType == "focus" and focusAuraGlows)
 
     local function UpdateAuraFrames(self, unit, isBuff)
         local maxAuras = isBuff and MAX_TARGET_BUFFS or 60
@@ -1253,6 +1256,10 @@ local function AdjustAuras(self, frameType)
                             isEnlarged = false
                         end
                     end
+                    elseif frameType == "party" then
+                        if not targetEnlargeAuraFriendly then
+                            isEnlarged = false
+                        end
                 end
 
                 if shouldShowAura then
@@ -2544,6 +2551,12 @@ function BBF.RefreshAllAuraFrames()
         --PersonalDebuffFrameFilterAndGrid(DebuffFrame)
         AdjustAuras(TargetFrame, "target")
         --AdjustAuras(FocusFrame, "focus")
+        for i = 1, 4 do
+            local frame = _G["PartyMemberFrame"..i]
+            if frame and frame:IsShown() then
+                AdjustAuras(frame, "party")
+            end
+        end
 
         if ToggleHiddenAurasButton then
             ToggleHiddenAurasButton:SetPoint("TOPLEFT", BuffFrame, "TOPRIGHT", 2 + BetterBlizzFramesDB.playerAuraSpacingX, 0)
@@ -2847,6 +2860,11 @@ function BBF.HookPlayerAndTargetAuras()
     if auraFilteringOn and not targetAurasHooked then
         hooksecurefunc("TargetFrame_UpdateAuras", function(self) AdjustAuras(self, self.unit) end)
         --hooksecurefunc(FocusFrame, "UpdateAuras", function(self) AdjustAuras(self, "focus") end)
+        hooksecurefunc("UnitFrame_UpdateAuras", function(self)
+        if self:GetName() and self:GetName():find("PartyMemberFrame") then
+            AdjustAuras(self, "party")
+        end
+    end)
         targetAurasHooked = true
     end
 
