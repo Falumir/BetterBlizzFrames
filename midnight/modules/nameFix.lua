@@ -348,6 +348,12 @@ BBA.SpecCache = {}
 local SpecCache = BBA.SpecCache  -- Stores GUID -> specID
 local GetUnitTooltip = C_TooltipInfo and C_TooltipInfo.GetUnit or function() return nil end
 
+local safeUnits = {
+    ["player"] = true,
+    ["target"] = true,
+    ["focus"] = true,
+}
+
 -- Function to retrieve the specialization ID of a unit
 local function GetSpecID(unit)
     -- Check if the unit is a player
@@ -357,7 +363,7 @@ local function GetSpecID(unit)
 
     local guid = UnitGUID(unit)
     if issecretvalue(guid) then
-        if C_PvP.IsArena() then
+        if safeUnits[unit] and C_PvP.IsArena() then
             for i = 1, 3 do
                 local arenaUnit = "arena" .. i
                 if UnitIsUnit(unit, arenaUnit) then
@@ -452,11 +458,23 @@ local function GetNameWithoutRealm(frame)
     return UnitFullName(frame.unit)
 end
 
+local printSecret
 local function SetArenaName(frame, unit, textObject)
     if UnitIsUnit(unit, "player") then return end
     local specName = GetSpecName(unit)
     local nameText
-    local partyID = UnitIsUnit(unit, "party1") and " 1" or " 2"
+    local isParty1 = UnitIsUnit(unit, "party1")
+    local partyID
+    if not issecretvalue(isParty1) then
+        partyID = isParty1 and " 1" or " 2"
+    else
+        partyID = isParty1 and " ?"
+        if not printSecret then
+            print("BetterBlizzFrames:\nUnable to determine party ID for unit: " .. unit .. ". Please report to @bodify.)")
+            printSecret = true
+        end
+    end
+
 
     if specName then
         if showSpecName and showArenaID then
