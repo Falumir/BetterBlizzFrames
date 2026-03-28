@@ -200,8 +200,8 @@ local function createOrUpdateBorders(frame, colorValue, textureName, bypass)
                     border:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
                     border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
                 else
-                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -1.5, 2)
-                    border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1.5, -1.5)
+                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -3.5, 3.5)
+                    border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 3.5, -3.5)
                 end
             end
             border:SetVertexColor(colorValue, colorValue, colorValue)
@@ -415,6 +415,13 @@ function BBF.DarkmodeFrames(bypass)
     if BuffFrame then
         for _, frame in pairs({_G.BuffFrame.AuraContainer:GetChildren()}) do
             createOrUpdateBorders(frame, vertexColor)
+            if frame.Duration and frame.Icon then
+                if BuffFrame.AuraContainer.addIconsToTop then
+                    frame.Duration:SetPoint("BOTTOM", frame.Icon, "TOP", 0, 3)
+                else
+                    frame.Duration:SetPoint("TOP", frame.Icon, "BOTTOM", 0, -3)
+                end
+            end
         end
     end
 

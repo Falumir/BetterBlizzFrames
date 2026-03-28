@@ -1,28 +1,33 @@
-if not BBF.isMidnight then return end
 local interruptSpells = {
-    1766,   -- Kick (Rogue)
-    2139,   -- Counterspell (Mage)
-    6552,   -- Pummel (Warrior)
-    19647,  -- Spell Lock (Warlock)
-    47528,  -- Mind Freeze (Death Knight)
-    57994,  -- Wind Shear (Shaman)
-    96231,  -- Rebuke (Paladin)
-    106839, -- Skull Bash (Feral)
-    115781, -- Optical Blast (Warlock)
-    116705, -- Spear Hand Strike (Monk)
-    132409, -- Spell Lock (Warlock)
-    119910, -- Spell Lock (Warlock Pet)
-    89766,  -- Axe Toss (Warlock Pet)
-    171138, -- Shadow Lock (Warlock)
-    147362, -- Countershot (Hunter)
-    183752, -- Disrupt (Demon Hunter)
-    187707, -- Muzzle (Hunter)
-    212619, -- Call Felhunter (Warlock)
-    351338, -- Quell (Evoker)
+    [1766]   = true, -- Kick (Rogue)
+    [2139]   = true, -- Counterspell (Mage)
+    [6552]   = true, -- Pummel (Warrior)
+    [19647]  = true, -- Spell Lock (Warlock)
+    [47528]  = true, -- Mind Freeze (Death Knight)
+    [57994]  = true, -- Wind Shear (Shaman)
+    --[91802]  = true, -- Shambling Rush (Death Knight)
+    [96231]  = true, -- Rebuke (Paladin)
+    [106839] = true, -- Skull Bash (Feral)
+    [115781] = true, -- Optical Blast (Warlock)
+    [116705] = true, -- Spear Hand Strike (Monk)
+    [132409] = true, -- Spell Lock (Warlock)
+    [119910] = true, -- Spell Lock (Warlock Pet)
+    [89766]  = true, -- Axe Toss (Warlock Pet)
+    [171138] = true, -- Shadow Lock (Warlock)
+    [147362] = true, -- Countershot (Hunter)
+    [183752] = true, -- Disrupt (Demon Hunter)
+    [187707] = true, -- Muzzle (Hunter)
+    [212619] = true, -- Call Felhunter (Warlock)
+    --[231665] = true, -- Avengers Shield (Paladin)
+    [351338] = true, -- Quell (Evoker)
+    [97547]  = true, -- Solar Beam
+    [78675]  = true, -- Solar Beam
+    [15487]  = true, -- Silence
+    --[47482]  = true, -- Leap (DK Transform)
 }
 
 local function GetInterruptSpell()
-    for _, spellID in ipairs(interruptSpells) do
+    for spellID, _ in pairs(interruptSpells) do
         if IsSpellKnownOrOverridesKnown(spellID) or (UnitExists("pet") and IsSpellKnownOrOverridesKnown(spellID, true)) then
             return spellID
         end
@@ -34,37 +39,10 @@ local playerKick = GetInterruptSpell()
 
 -- Recheck interrupt spells when lock resummons/sacrifices pet
 local petSummonSpells = {
-    [30146]  = true, -- Summon Demonic Tyrant (Demonology)
+    [30146]  = true, -- Summon Felguard (Demonology)
     [691]    = true, -- Summon Felhunter (for Spell Lock)
     [108503] = true, -- Grimoire of Sacrifice
 }
-
-BBF.interruptTrackingIcon = CreateFrame("Frame")
-BBF.interruptTrackingIcon.cooldown = CreateFrame("Cooldown", nil, BBF.interruptTrackingIcon, "CooldownFrameTemplate")
-BBF.interruptTrackingIcon.cooldown:HookScript("OnCooldownDone", function()
-    BBF.playerKickReady = true
-    if UnitExists("target") then
-        BBF.ColorCastbar(TargetFrameSpellBar)
-    end
-    if UnitExists("focus") then
-        BBF.ColorCastbar(FocusFrameSpellBar)
-    end
-end)
-BBF.playerKickReady = true
-
-local function UpdateInterruptTracking()
-    if not playerKick then
-        playerKick = GetInterruptSpell()
-    end
-    if playerKick then
-        local cooldownInfo = C_Spell.GetSpellCooldown(playerKick)
-        if cooldownInfo then
-            BBF.interruptTrackingIcon.cooldown:SetCooldown(cooldownInfo.startTime, cooldownInfo.duration)
-            local isOnCooldown = BBF.interruptTrackingIcon.cooldown:IsShown()
-            BBF.playerKickReady = not isOnCooldown
-        end
-    end
-end
 
 local function UpdateInterruptIcon(frame)
     if not frame then return end
@@ -106,9 +84,9 @@ local function UpdateInterruptIcon(frame)
     end
 
     if playerKick then
-        local cooldownInfo = C_Spell.GetSpellCooldown(playerKick)
+        local cooldownInfo = C_Spell.GetSpellCooldownDuration(playerKick)
         if cooldownInfo then
-            frame.cooldown:SetCooldown(cooldownInfo.startTime, cooldownInfo.duration)
+            frame.cooldown:SetCooldownFromDurationObject(cooldownInfo)
             local isOnCooldown = frame.cooldown:IsShown()
 
             if BetterBlizzFramesDB.castBarInterruptIconShowActiveOnly and isOnCooldown then
@@ -136,6 +114,43 @@ local function UpdateInterruptIcon(frame)
     end
 end
 
+local function UpdateIconsAndColor()
+    if UnitExists("target") then
+        BBF.ColorCastbar(TargetFrameSpellBar)
+        if TargetFrameSpellBar.interruptIconFrame then
+            UpdateInterruptIcon(TargetFrameSpellBar.interruptIconFrame)
+        end
+    end
+    if UnitExists("focus") then
+        BBF.ColorCastbar(FocusFrameSpellBar)
+        if FocusFrameSpellBar.interruptIconFrame then
+            UpdateInterruptIcon(FocusFrameSpellBar.interruptIconFrame)
+        end
+    end
+end
+
+BBF.interruptTrackingIcon = CreateFrame("Frame")
+BBF.interruptTrackingIcon.cooldown = CreateFrame("Cooldown", nil, BBF.interruptTrackingIcon, "CooldownFrameTemplate")
+BBF.interruptTrackingIcon.cooldown:HookScript("OnCooldownDone", function()
+    BBF.interruptReady = true
+    UpdateIconsAndColor()
+end)
+
+local function UpdateInterruptTracking()
+    if not playerKick then
+        playerKick = GetInterruptSpell()
+    end
+    if playerKick then
+        local cooldownInfo = C_Spell.GetSpellCooldownDuration(playerKick)
+        if cooldownInfo then
+            BBF.interruptTrackingIcon.cooldown:SetCooldownFromDurationObject(cooldownInfo)
+            BBF.interruptReady = not BBF.interruptTrackingIcon.cooldown:IsShown()
+        end
+    else
+        BBF.interruptReady = nil
+    end
+end
+
 local function OnPetEvent(self, event, unit, _, spellID)
     if event == "UNIT_SPELLCAST_SUCCEEDED" then
         if not petSummonSpells[spellID] then return end
@@ -143,25 +158,24 @@ local function OnPetEvent(self, event, unit, _, spellID)
     C_Timer.After(0.1, function()
         playerKick = GetInterruptSpell()
         UpdateInterruptTracking()
-        if TargetFrameSpellBar.interruptIconFrame then
-            UpdateInterruptIcon(TargetFrameSpellBar.interruptIconFrame)
-        end
-        if FocusFrameSpellBar.interruptIconFrame then
-            UpdateInterruptIcon(FocusFrameSpellBar.interruptIconFrame)
-        end
+        UpdateIconsAndColor()
     end)
 end
 
 local cooldownFrame = CreateFrame("Frame")
 cooldownFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+cooldownFrame:RegisterEvent("SPELL_UPDATE_USABLE")
 cooldownFrame:SetScript("OnEvent", function(self, event, spellID)
-    if spellID ~= playerKick then return end
-    UpdateInterruptTracking()
-    if TargetFrameSpellBar.interruptIconFrame then
-        UpdateInterruptIcon(TargetFrameSpellBar.interruptIconFrame)
-    end
-    if FocusFrameSpellBar.interruptIconFrame then
-        UpdateInterruptIcon(FocusFrameSpellBar.interruptIconFrame)
+    if event == "SPELL_UPDATE_COOLDOWN" then
+        if spellID ~= playerKick then return end
+        UpdateInterruptTracking()
+        UpdateIconsAndColor()
+    else
+        local oldInterruptStatus = BBF.interruptReady
+        UpdateInterruptTracking()
+        if oldInterruptStatus ~= BBF.interruptReady then
+            UpdateIconsAndColor()
+        end
     end
 end)
 

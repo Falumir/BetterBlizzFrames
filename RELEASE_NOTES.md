@@ -1,3 +1,53 @@
+# BetterBlizzFrames 1.9.3g
+## Midnight
+### Bugfix
+- Fix aura durations on Player Auras not showing if moving auras upwards + dark mode.
+
+# BetterBlizzFrames 1.9.3f
+## All
+### Bugfix
+- Fix an issue causing custom fonts to not load on first time login on some elements but fixed by a /reload.
+## Midnight
+### Bugfix
+- Fix issues with interrupt color. /pray its better now.
+- Fix castbar color issue getting stuck red on finished casts.
+- Fix a secret error.
+
+# BetterBlizzFrames 1.9.3e
+## Midnight
+### New
+- Add Dissonance profile (www.twitch.tv/dissonancewow). Ty for sharing.
+### Tweak
+- CDM: Center Icons now also centers vertical ones. For Vertical ones the Icon Direction setting in Edit Mode will decide which side any icons going over the row limit gets centered on. Up for on the right side and down for the left side. This may change your setup a bit.
+- Fix frame level for manabar for non-grouped raidframes with the Better Target Highlight setting.
+- Move Player Auras (topright) duration text on buffs down a little (after blizzard moved them up) when Darkmode: Auras is enabled to give the border some space and not overlap the duration.
+- Update Venruki and Wolf profile. Ty for sharing.
+### Bugfix
+- Fix issues with the kick tracking/coloring. Should be better now hopefully.
+
+# BetterBlizzFrames 1.9.3d
+## Midnight
+### Bugfix
+- Fix "Better Target Highlight" showing on nameplates. Oops.
+- Fix CDM: Center Icons affecting the gap setting unintentionally. Due to this you may have to adjust ur gap setting in edit mode for it.
+- Fix CDM: Center Icons setting not centering the buff icons properly.
+- Fix big debuffs aura logic not filtering out trash auras
+
+# BetterBlizzFrames 1.9.3c
+## Midnight
+### Bugfix
+- Fix cooldown stuff that needed updating for new api changes that slipped through the cracks of my sleep deprived ass.
+- Fix the new party highlight seting to work properly on raidframes too.
+### Tweak
+- Fix offsets for darkmode border on Player Auras (topright next to minimap)
+
+# BetterBlizzFrames 1.9.3b
+## Midnight
+### Tweak
+- Fix cooldown stuff for upcoming Midnight changes.
+### Bugfix
+- Fix the "Hide Shadow" setting for All Frames not working on rares.
+
 # BetterBlizzFrames 1.9.3
 ## Midnight
 ### New
