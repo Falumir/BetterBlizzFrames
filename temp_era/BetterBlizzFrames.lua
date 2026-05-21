@@ -119,12 +119,14 @@ local defaultSettings = {
     petCastbar = false,
     petCastBarScale = 0.92,
     petCastBarIconScale = 1,
+    petCastbarIconXPos = 0,
+    petCastbarIconYPos = 0,
     petCastBarXPos = 0,
     petCastBarYPos = 0,
     petCastBarWidth = 137,
     petCastBarHeight = 10,
     showPetCastBarIcon = true,
-    showPetCastBarTimer = false,
+    petCastBarTimer = false,
     petCastBarShowText = true,
     petCastBarShowBorder = true,
 
@@ -168,7 +170,7 @@ local defaultSettings = {
     playerCastBarWidth = 195,
     playerCastBarHeight = 13,
     playerCastBarTimer = false,
-    playerCastBarTimerCenter = false,
+    playerCastBarTimerCentered = false,
     playerCastBarShowText = true,
     playerCastBarShowBorder = true,
     targetAndFocusArenaNamePartyOverride = true,
@@ -519,17 +521,26 @@ ClickthroughFrames:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 function BBF.PlayerElite(mode)
     local playerElite = PlayerFrameTexture
-    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"]
+    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"] and not BetterBlizzFramesDB.biggerHealthbarsNoPlayer
+    local hideMana = BetterBlizzFramesDB.hidePlayerManabar
 
     -- Set Elite style according to value
     playerElite:SetDesaturated(false)
     if not BetterBlizzFramesDB.playerEliteFrame then
         if BBF.eliteToggled then
             if bigHealthbars then
-                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame")
+                if hideMana then
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Big-NoMana")
+                else
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame")
+                end
                 playerElite:SetTexCoord(1, .09375, 0, .78125)
             else
-                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                if hideMana then
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-NoMana")
+                else
+                    playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                end
                 playerElite:SetTexCoord(1, .09375, 0, .78125)
             end
             BBF.eliteToggled = nil
@@ -540,29 +551,53 @@ function BBF.PlayerElite(mode)
     end
     if mode == 1 then -- Rare (Silver)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         end
     elseif mode == 2 then -- Boss (Gold Winged)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Elite-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Elite-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
         end
     elseif mode == 3 then -- Boss (Silver Winged)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Elite-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Elite-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         end
@@ -786,10 +821,15 @@ function BBF.ActionBarIconZoom()
             _G["PetActionButton" .. i .. "Icon"],
             _G["StanceButton" .. i .. "Icon"]
         }
-        for _, icon in ipairs(icons) do
+        for _, icon in pairs(icons) do
             applyTexCoord(icon)
         end
     end
+
+    for i = 0, 3 do
+        applyTexCoord(_G["CharacterBag" .. i .. "SlotIconTexture"])
+    end
+    applyTexCoord(MainMenuBarBackpackButtonIconTexture)
 end
 
 
@@ -827,8 +867,7 @@ end
 
 
 local LSM = LibStub("LibSharedMedia-3.0")
-BBF.LSM = LSM
-BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
+
 LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
 LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
 LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
@@ -1270,6 +1309,18 @@ function BBF.FixStupidBlizzPTRShit()
         local a,b,c,d,e = TargetFrameToTPortrait:GetPoint()
         TargetFrameToTPortrait:SetPoint(a,b,c,4.5,-5.5)
 
+        -- Center the pet action button "selected" highlight on the button
+        for i = 1, NUM_PET_ACTION_SLOTS do
+            local btn = _G["PetActionButton"..i]
+            if btn then
+                local checked = btn:GetCheckedTexture()
+                local icon = btn.icon
+                checked:ClearAllPoints()
+                checked:SetPoint("CENTER", btn, "CENTER", -0.5, -0.5)
+                checked:SetSize(icon:GetSize())
+            end
+        end
+
         --if C_AddOns.IsAddOnLoaded("Bartender4") then return end
         --if C_AddOns.IsAddOnLoaded("Dominos") then return end
         -- MainMenuBarTextureExtender:Hide()
@@ -1557,6 +1608,7 @@ Frame:SetScript("OnEvent", function(...)
                 if BetterBlizzFramesDB.biggerHealthbars then
                     BBF.HookBiggerHealthbars()
                 end
+                BBF.HookHideManabars()
                 BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
                 BBF.ToggleCastbarInterruptIcon()
                 BBF.UpdateUserTargetSettings()
@@ -1691,6 +1743,21 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
             InitializeSavedVariables()
             FetchAndSaveValuesOnFirstLogin()
+            if not BetterBlizzFramesDB.fontOutlineFix then
+                local outlineKeys = {
+                    "unitFrameFontOutline", "unitFrameValueFontOutline",
+                    "partyFrameFontOutline", "actionBarFontOutline", "actionBarKeyFontOutline"
+                }
+                for _, key in ipairs(outlineKeys) do
+                    local val = BetterBlizzFramesDB[key]
+                    if val == "THINOUTLINE" then
+                        BetterBlizzFramesDB[key] = "OUTLINE"
+                    elseif val == "NONE" then
+                        BetterBlizzFramesDB[key] = ""
+                    end
+                end
+                BetterBlizzFramesDB.fontOutlineFix = true
+            end
             TurnTestModesOff()
             BBF.ZoomDefaultActionbarIcons()
             --TurnOnEnabledFeaturesOnLogin()

@@ -363,6 +363,11 @@ local function PlaceAuraGroup(self, list, forceNewRowAtStart, rowWidths, rowHeig
 
         aura:SetScale(auraScale)
         aura:SetAlpha(1)
+        if aura.Stealable ~= nil then
+            aura.Stealable:ClearAllPoints()
+            aura.Stealable:SetPoint("TOPLEFT", aura, "TOPLEFT", -2, 2)
+            aura.Stealable:SetPoint("BOTTOMRIGHT", aura, "BOTTOMRIGHT", 1, -1)
+        end
         local isLargeAura
         if showAuraCdText and auraCdTextOnlyMine then
             if aura.bbfAuraInstanceID ~= aura.auraInstanceID then
@@ -375,7 +380,7 @@ local function PlaceAuraGroup(self, list, forceNewRowAtStart, rowWidths, rowHeig
             else
                 aura.Cooldown:SetHideCountdownNumbers(true)
             end
-            local cdText = aura.Cooldown and aura.Cooldown:GetRegions()
+            local cdText = aura.Cooldown and not aura.Cooldown.tullaCTC and aura.Cooldown:GetCountdownFontString()
             if cdText then
                 cdText:SetScale(auraCdTextSize)
             end
@@ -383,7 +388,7 @@ local function PlaceAuraGroup(self, list, forceNewRowAtStart, rowWidths, rowHeig
             isLargeAura = aura:GetWidth() > 20
             if showAuraCdText then
                 aura.Cooldown:SetHideCountdownNumbers(false)
-                local cdText = aura.Cooldown and aura.Cooldown:GetRegions()
+                local cdText = aura.Cooldown and not aura.Cooldown.tullaCTC and aura.Cooldown:GetCountdownFontString()
                 if cdText then
                     cdText:SetScale(auraCdTextSize)
                 end

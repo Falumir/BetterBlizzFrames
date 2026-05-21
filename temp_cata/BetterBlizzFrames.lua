@@ -126,7 +126,7 @@ local defaultSettings = {
     petCastBarWidth = 137,
     petCastBarHeight = 10,
     showPetCastBarIcon = true,
-    showPetCastBarTimer = false,
+    petCastBarTimer = false,
     petCastBarShowText = true,
     petCastBarShowBorder = true,
 
@@ -174,7 +174,7 @@ local defaultSettings = {
     playerCastBarWidth = 195,
     playerCastBarHeight = 13,
     playerCastBarTimer = false,
-    playerCastBarTimerCenter = false,
+    playerCastBarTimerCentered = false,
     playerCastBarShowText = true,
     playerCastBarShowBorder = true,
 
@@ -595,17 +595,26 @@ end
 
 function BBF.PlayerElite(mode)
     local playerElite = PlayerFrameTexture
-    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"]
+    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"] and not BetterBlizzFramesDB.biggerHealthbarsNoPlayer
+    local hideMana = BetterBlizzFramesDB.hidePlayerManabar
 
     -- Set Elite style according to value
     playerElite:SetDesaturated(false)
     if not BetterBlizzFramesDB.playerEliteFrame then
         if BBF.eliteToggled then
             if bigHealthbars then
-                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame")
+                if hideMana then
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Big-NoMana")
+                else
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame")
+                end
                 playerElite:SetTexCoord(1, .09375, 0, .78125)
             else
-                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                if hideMana then
+                    playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-NoMana")
+                else
+                    playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame")
+                end
                 playerElite:SetTexCoord(1, .09375, 0, .78125)
             end
             BBF.eliteToggled = nil
@@ -616,29 +625,53 @@ function BBF.PlayerElite(mode)
     end
     if mode == 1 then -- Rare (Silver)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Rare")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         end
     elseif mode == 2 then -- Boss (Gold Winged)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Elite-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Elite-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
         end
     elseif mode == 3 then -- Boss (Silver Winged)
         if bigHealthbars then
-            playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Elite-Big-NoMana")
+            else
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\UI-TargetingFrame-Rare-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         else
-            playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            if hideMana then
+                playerElite:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\NoManas\\UI-TargetingFrame-Rare-Elite-NoMana")
+            else
+                playerElite:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Elite")
+            end
             playerElite:SetTexCoord(1, .09375, 0, .78125)
             playerElite:SetDesaturated(true)
         end
@@ -1893,8 +1926,7 @@ end
 
 
 local LSM = LibStub("LibSharedMedia-3.0")
-BBF.LSM = LSM
-BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
+
 LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
 LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
 LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
@@ -2643,6 +2675,7 @@ Frame:SetScript("OnEvent", function(...)
                 if BetterBlizzFramesDB.biggerHealthbars then
                     BBF.HookBiggerHealthbars()
                 end
+                BBF.HookHideManabars()
                 BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
                 BBF.ToggleCastbarInterruptIcon()
                 BBF.UpdateCastbars()
@@ -2793,6 +2826,21 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
             InitializeSavedVariables()
             FetchAndSaveValuesOnFirstLogin()
+            if not BetterBlizzFramesDB.fontOutlineFix then
+                local outlineKeys = {
+                    "unitFrameFontOutline", "unitFrameValueFontOutline",
+                    "partyFrameFontOutline", "actionBarFontOutline", "actionBarKeyFontOutline"
+                }
+                for _, key in ipairs(outlineKeys) do
+                    local val = BetterBlizzFramesDB[key]
+                    if val == "THINOUTLINE" then
+                        BetterBlizzFramesDB[key] = "OUTLINE"
+                    elseif val == "NONE" then
+                        BetterBlizzFramesDB[key] = ""
+                    end
+                end
+                BetterBlizzFramesDB.fontOutlineFix = true
+            end
             TurnTestModesOff()
             BBF.FixLegacyComboPointsLocation()
             BBF.AlwaysShowLegacyComboPoints()
@@ -2801,6 +2849,17 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.ZoomDefaultActionbarIcons()
             --TurnOnEnabledFeaturesOnLogin()
             BBF.RaiseTargetCastbarStratas()
+
+            if not BetterBlizzFramesDB.disableHealAbsorbRecolor then
+                local function SkinUnitFrameHealAbsorbBar(bar)
+                    bar.Fill:SetTexture(texture, true, true)
+                    bar.Fill:SetVertexColor(1, 1, 1, alpha)
+                end
+
+                SkinUnitFrameHealAbsorbBar(TargetFrame.HealthBar.HealAbsorbBar)
+                SkinUnitFrameHealAbsorbBar(FocusFrame.HealthBar.HealAbsorbBar)
+                SkinUnitFrameHealAbsorbBar(PlayerFrame.HealthBar.HealAbsorbBar)
+            end
 
             C_Timer.After(1, function()
                 BBF.HookStatusBarText()

@@ -148,7 +148,7 @@ local defaultSettings = {
     petCastBarWidth = 103,
     petCastBarHeight = 10,
     showPetCastBarIcon = true,
-    showPetCastBarTimer = false,
+    petCastBarTimer = false,
 
     --Castbar edge highlight
     castBarInterruptHighlighterStartTime = 0.8,
@@ -188,7 +188,7 @@ local defaultSettings = {
     playerCastBarWidth = 208,
     playerCastBarHeight = 11,
     playerCastBarTimer = false,
-    playerCastBarTimerCenter = false,
+    playerCastBarTimerCentered = false,
 
     --Auras
     --playerAuraMaxBuffsPerRow = 10,
@@ -3172,8 +3172,7 @@ end)
 
 
 local LSM = LibStub("LibSharedMedia-3.0")
-BBF.LSM = LSM
-BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
+
 LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
 LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
 LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
@@ -5067,6 +5066,21 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
         InitializeSavedVariables()
         FetchAndSaveValuesOnFirstLogin()
+        if not BetterBlizzFramesDB.fontOutlineFix then
+            local outlineKeys = {
+                "unitFrameFontOutline", "unitFrameValueFontOutline",
+                "partyFrameFontOutline", "actionBarFontOutline", "actionBarKeyFontOutline"
+            }
+            for _, key in ipairs(outlineKeys) do
+                local val = BetterBlizzFramesDB[key]
+                if val == "THINOUTLINE" then
+                    BetterBlizzFramesDB[key] = "OUTLINE"
+                elseif val == "NONE" then
+                    BetterBlizzFramesDB[key] = ""
+                end
+            end
+            BetterBlizzFramesDB.fontOutlineFix = true
+        end
         TurnTestModesOff()
         BBF.FixLegacyComboPointsLocation()
         BBF.AlwaysShowLegacyComboPoints()

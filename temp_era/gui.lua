@@ -671,6 +671,12 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
                 elseif element == "playerCastBarIconScale" then
                     BetterBlizzFramesDB.playerCastBarIconScale = value
                     BBF.ChangeCastbarSizes()
+                elseif element == "playerCastbarIconXPos" then
+                    BetterBlizzFramesDB.playerCastbarIconXPos = value
+                    BBF.ChangeCastbarSizes()
+                elseif element == "playerCastbarIconYPos" then
+                    BetterBlizzFramesDB.playerCastbarIconYPos = value
+                    BBF.ChangeCastbarSizes()
                 elseif element == "playerCastBarXPos" then
                     BetterBlizzFramesDB.playerCastBarXPos = value
                     BBF.ChangeCastbarSizes()
@@ -712,6 +718,12 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
                     BBF.UpdatePetCastbar()
                 elseif element == "petCastBarIconScale" then
                     BetterBlizzFramesDB.petCastBarIconScale = value
+                    BBF.UpdatePetCastbar()
+                elseif element == "petCastbarIconXPos" then
+                    BetterBlizzFramesDB.petCastbarIconXPos = value
+                    BBF.UpdatePetCastbar()
+                elseif element == "petCastbarIconYPos" then
+                    BetterBlizzFramesDB.petCastbarIconYPos = value
                     BBF.UpdatePetCastbar()
                 elseif element == "playerAuraMaxBuffsPerRow" then
                     BetterBlizzFramesDB.playerAuraMaxBuffsPerRow = value
@@ -2130,6 +2142,11 @@ end
 local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, optionsTable, toggleFunc, point, dropdownWidth)
     dropdownWidth = dropdownWidth or 155  -- Default dropdown width if not provided
 
+    local function GetDisplayText(text)
+        if text == "" then return "NONE" end
+        return text
+    end
+
     -- Create container for label and dropdown
     local container = CreateFrame("Frame", nil, parentFrame)
     container:SetSize(dropdownWidth, 50)
@@ -2138,7 +2155,7 @@ local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, op
     local dropdown = CreateFrame("DropdownButton", nil, parentFrame, "WowStyle1DropdownTemplate")
     dropdown:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", 0, 0)
     dropdown:SetWidth(dropdownWidth)
-    dropdown:SetDefaultText(BetterBlizzFramesDB[settingKey] or (L["Select"]..labelText))
+    dropdown:SetDefaultText(GetDisplayText(BetterBlizzFramesDB[settingKey]) or (L["Select"]..labelText))
     dropdown.Background:SetVertexColor(0.9, 0.9, 0.9)
     dropdown.Arrow:SetVertexColor(0.9, 0.9, 0.9)
 
@@ -2155,10 +2172,11 @@ local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, op
         rootDescription:SetScrollMode(maxScrollExtent)
 
         for _, option in ipairs(optionsTable) do
+            local displayText = GetDisplayText(option)
             -- Create each item as a button
-            local button = rootDescription:CreateButton(option, function()
+            local button = rootDescription:CreateButton(displayText, function()
                 BetterBlizzFramesDB[settingKey] = option
-                dropdown:SetDefaultText(option)
+                dropdown:SetDefaultText(displayText)
                 if toggleFunc then
                     toggleFunc(option)
                 end
@@ -2167,7 +2185,7 @@ local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, op
             -- Add the text initializer for the button
             button:AddInitializer(function(button)
                 if button.Text then
-                    button.Text:SetText(option)
+                    button.Text:SetText(displayText)
                 end
             end)
         end
@@ -2175,7 +2193,7 @@ local function CreateSimpleDropdown(name, parentFrame, labelText, settingKey, op
 
     -- Reset dropdown contents when closed
     hooksecurefunc(dropdown, "OnMenuClosed", function()
-        dropdown:SetDefaultText(BetterBlizzFramesDB[settingKey] or (L["Select"]..labelText))
+        dropdown:SetDefaultText(GetDisplayText(BetterBlizzFramesDB[settingKey]) or (L["Select"]..labelText))
     end)
 
     dropdown:SetupMenu(GeneratorFunction)
@@ -2506,7 +2524,7 @@ local function guiGeneralTab()
     local alpha2 = BetterBlizzFrames:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     alpha2:SetPoint("BOTTOM", SettingsPanel, "TOP", 0, 0)
     alpha2:SetText(L["Label_Betterblizzframes_Era_Alpha_Please_Report"])
-    alpha2:SetFont("Fonts\\FRIZQT__.TTF", 20, "THINOUTLINE")
+    alpha2:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")
     alpha2:Hide()
     BetterBlizzFrames:HookScript("OnShow",function()
         alpha2:Show()
@@ -3480,8 +3498,70 @@ local function guiGeneralTab()
         StaticPopup_Show("BBF_CONFIRM_RELOAD")
     end)
 
-    biggerHealthbars:HookScript("OnClick", function()
+    biggerHealthbars:HookScript("OnClick", function(self)
         CheckAndToggleCheckboxes(biggerHealthbars)
+        if not self:GetChecked() then
+            StaticPopup_Show("BBF_CONFIRM_RELOAD")
+        end
+    end)
+
+    local biggerHealthbarsOptionsFrame
+    local function OpenBiggerHealthbarsOptionsWindow()
+        if not biggerHealthbarsOptionsFrame then
+            biggerHealthbarsOptionsFrame = CreateFrame("Frame", "BiggerHealthbarsOptionsFrame", UIParent, "BasicFrameTemplateWithInset")
+            biggerHealthbarsOptionsFrame:SetSize(185, 110)
+            biggerHealthbarsOptionsFrame:SetPoint("CENTER")
+            biggerHealthbarsOptionsFrame:SetFrameStrata("DIALOG")
+            biggerHealthbarsOptionsFrame:SetMovable(true)
+            biggerHealthbarsOptionsFrame:EnableMouse(true)
+            biggerHealthbarsOptionsFrame:RegisterForDrag("LeftButton")
+            biggerHealthbarsOptionsFrame:SetScript("OnDragStart", biggerHealthbarsOptionsFrame.StartMoving)
+            biggerHealthbarsOptionsFrame:SetScript("OnDragStop", biggerHealthbarsOptionsFrame.StopMovingOrSizing)
+            biggerHealthbarsOptionsFrame.title = biggerHealthbarsOptionsFrame:CreateFontString(nil, "OVERLAY")
+            biggerHealthbarsOptionsFrame.title:SetFontObject("GameFontHighlight")
+            biggerHealthbarsOptionsFrame.title:SetPoint("LEFT", biggerHealthbarsOptionsFrame.TitleBg, "LEFT", 5, 0)
+            biggerHealthbarsOptionsFrame.title:SetText(L["Frame_Options"])
+
+            local options = {
+                { var = "biggerHealthbarsNoPlayer", label = L["Ignore_On_Player_Frame"] },
+                { var = "biggerHealthbarsNoTarget", label = L["Ignore_On_Target_Frame"] },
+            }
+
+            local previousCheckbox
+            for i, optData in ipairs(options) do
+                local optCheckbox = CreateFrame("CheckButton", nil, biggerHealthbarsOptionsFrame, "UICheckButtonTemplate")
+                optCheckbox:SetSize(24, 24)
+                optCheckbox.Text:SetText(optData.label)
+
+                if i == 1 then
+                    optCheckbox:SetPoint("TOPLEFT", biggerHealthbarsOptionsFrame, "TOPLEFT", 10, -30)
+                else
+                    optCheckbox:SetPoint("TOPLEFT", previousCheckbox, "BOTTOMLEFT", 0, 3)
+                end
+
+                optCheckbox:SetChecked(BetterBlizzFramesDB[optData.var])
+
+                optCheckbox:SetScript("OnClick", function(self)
+                    BetterBlizzFramesDB[optData.var] = self:GetChecked() or nil
+                    StaticPopup_Show("BBF_CONFIRM_RELOAD")
+                end)
+
+                previousCheckbox = optCheckbox
+            end
+            biggerHealthbarsOptionsFrame:Show()
+        else
+            if biggerHealthbarsOptionsFrame:IsShown() then
+                biggerHealthbarsOptionsFrame:Hide()
+            else
+                biggerHealthbarsOptionsFrame:Show()
+            end
+        end
+    end
+
+    biggerHealthbars:SetScript("OnMouseDown", function(self, button)
+        if button == "RightButton" then
+            OpenBiggerHealthbarsOptionsWindow()
+        end
     end)
 
 
@@ -3832,6 +3912,10 @@ local function guiCastbars()
     partyCastbarShowText:SetPoint("TOPLEFT", showPartyCastBarIcon, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(partyCastbarShowText, L["Tooltip_Show_Castbar_Text_Desc"], L["Tooltip_Show_Castbar_Text_Desc"])
 
+    local partyCastBarForceDefaultPartyFrames = CreateCheckbox("partyCastBarForceDefaultPartyFrames", L["Party_Castbar_Force_Default_Frames"], contentFrame)
+    partyCastBarForceDefaultPartyFrames:SetPoint("TOPLEFT", partyCastbarShowText, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(partyCastBarForceDefaultPartyFrames, L["Tooltip_Party_Castbar_Force_Default_Frames_Title"], L["Tooltip_Party_Castbar_Force_Default_Frames_Desc"])
+
     local partyCastbarShowBorder = CreateCheckbox("partyCastbarShowBorder", L["Border"], contentFrame, nil, BBF.partyCastBarTestMode)
     partyCastbarShowBorder:SetPoint("TOPLEFT", partyCastbarSelf, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(partyCastbarShowBorder, L["Tooltip_Show_Castbar_Borders_Desc"], L["Tooltip_Show_Castbar_Borders_Desc"])
@@ -3841,17 +3925,33 @@ local function guiCastbars()
     resetPartyCastbar:SetWidth(70)
     resetPartyCastbar:SetPoint("TOP", partyCastbarBorder, "BOTTOM", 0, -2)
     resetPartyCastbar:SetScript("OnClick", function()
-        partyCastBarScale:SetValue(1)
-        partyCastBarIconScale:SetValue(1)
+        partyCastBarScale:SetMinMaxValues(0.5, 1.9)
+        partyCastBarXPos:SetMinMaxValues(-200, 200)
+        partyCastBarYPos:SetMinMaxValues(-200, 200)
+        partyCastBarWidth:SetMinMaxValues(20, 200)
+        partyCastBarHeight:SetMinMaxValues(5, 30)
+        partyCastBarIconScale:SetMinMaxValues(0.4, 2)
+        partyCastbarIconXPos:SetMinMaxValues(-50, 50)
+        partyCastbarIconYPos:SetMinMaxValues(-50, 50)
+        partyCastBarScale:SetValue(0.9)
+        partyCastBarIconScale:SetValue(0.9)
         partyCastBarXPos:SetValue(0)
         partyCastBarYPos:SetValue(0)
         partyCastbarIconXPos:SetValue(0)
         partyCastbarIconYPos:SetValue(0)
-        partyCastBarWidth:SetValue(100)
-        partyCastBarHeight:SetValue(12)
+        partyCastBarWidth:SetValue(137)
+        partyCastBarHeight:SetValue(10)
         partyCastBarTimer:SetChecked(true)
+        showPartyCastBarIcon:SetChecked(true)
+        partyCastbarShowText:SetChecked(true)
+        partyCastbarShowBorder:SetChecked(true)
+        partyCastbarSelf:SetChecked(false)
         BetterBlizzFramesDB.partyCastBarTimer = true
-        BBF.CastBarTimerCaller()
+        BetterBlizzFramesDB.showPartyCastBarIcon = true
+        BetterBlizzFramesDB.partyCastbarShowText = true
+        BetterBlizzFramesDB.partyCastbarShowBorder = true
+        BetterBlizzFramesDB.partyCastbarSelf = false
+        BBF.UpdateCastbars()
     end)
 
 
@@ -3997,6 +4097,15 @@ local function guiCastbars()
     resetTargetCastbar:SetWidth(70)
     resetTargetCastbar:SetPoint("TOP", targetCastbarBorder, "BOTTOM", 0, -2)
     resetTargetCastbar:SetScript("OnClick", function()
+        targetCastBarScale:SetMinMaxValues(0.1, 1.9)
+        targetCastBarXPos:SetMinMaxValues(-130, 130)
+        targetCastBarYPos:SetMinMaxValues(-130, 130)
+        targetCastBarWidth:SetMinMaxValues(60, 220)
+        targetCastBarHeight:SetMinMaxValues(5, 30)
+        targetCastBarIconScale:SetMinMaxValues(0.4, 2)
+        targetCastbarIconXPos:SetMinMaxValues(-160, 160)
+        targetCastbarIconYPos:SetMinMaxValues(-160, 160)
+        targetToTAdjustmentOffsetY:SetMinMaxValues(-20, 50)
         targetCastBarScale:SetValue(1)
         targetCastBarIconScale:SetValue(1)
         targetCastBarXPos:SetValue(0)
@@ -4032,7 +4141,7 @@ local function guiCastbars()
     anchorSubPetCastbar:SetPoint("CENTER", mainGuiAnchor2, "CENTER", firstLineX, secondLineY - 90)
     anchorSubPetCastbar:SetText(L["Label_Pet_Castbar"])
 
-    local petCastbarBorder = CreateBorderedFrame(anchorSubPetCastbar, 157, 320, 0, -142, contentFrame)
+    local petCastbarBorder = CreateBorderedFrame(anchorSubPetCastbar, 157, 386, 0, -175, contentFrame)
 
     local petCastbars = contentFrame:CreateTexture(nil, "ARTWORK")
     petCastbars:SetAtlas("ui-castingbar-filling-channel")
@@ -4059,8 +4168,14 @@ local function guiCastbars()
     local petCastBarIconScale = CreateSlider(contentFrame, "Icon Size", 0.4, 2, 0.01, "petCastBarIconScale")
     petCastBarIconScale:SetPoint("TOP", petCastBarHeight, "BOTTOM", 0, -15)
 
+    local petCastbarIconXPos = CreateSlider(contentFrame, L["Icon_X_Offset"], -200, 200, 1, "petCastbarIconXPos")
+    petCastbarIconXPos:SetPoint("TOP", petCastBarIconScale, "BOTTOM", 0, -15)
+
+    local petCastbarIconYPos = CreateSlider(contentFrame, L["Icon_Y_Offset"], -50, 50, 1, "petCastbarIconYPos")
+    petCastbarIconYPos:SetPoint("TOP", petCastbarIconXPos, "BOTTOM", 0, -15)
+
     local petCastBarTestMode = CreateCheckbox("petCastBarTestMode", L["Test"], contentFrame, nil, BBF.petCastBarTestMode)
-    petCastBarTestMode:SetPoint("TOPLEFT", petCastBarIconScale, "BOTTOMLEFT", 10, -4)
+    petCastBarTestMode:SetPoint("TOPLEFT", petCastbarIconYPos, "BOTTOMLEFT", 10, -4)
     CreateTooltip(petCastBarTestMode, L["Tooltip_Need_Pet"])
 
     local petCastBarTimer = CreateCheckbox("petCastBarTimer", L["Timer"], contentFrame, nil, BBF.petCastBarTestMode)
@@ -4086,11 +4201,11 @@ local function guiCastbars()
     end)
     CreateTooltip(petDetachCastbar, L["Tooltip_Detach_Castbar"])
 
-    local petCastBarShowText = CreateCheckbox("petCastBarShowText", L["Text"], contentFrame, nil, BBF.partyCastBarTestMode)
+    local petCastBarShowText = CreateCheckbox("petCastBarShowText", L["Text"], contentFrame, nil, BBF.petCastBarTestMode)
     petCastBarShowText:SetPoint("TOPLEFT", petDetachCastbar, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(petCastBarShowText, L["Tooltip_Show_Castbar_Text_Desc"], L["Tooltip_Show_Castbar_Text_Desc"])
 
-    local petCastBarShowBorder = CreateCheckbox("petCastBarShowBorder", L["Border"], contentFrame, nil, BBF.partyCastBarTestMode)
+    local petCastBarShowBorder = CreateCheckbox("petCastBarShowBorder", L["Border"], contentFrame, nil, BBF.petCastBarTestMode)
     petCastBarShowBorder:SetPoint("TOPLEFT", petCastBarTimer, "BOTTOMLEFT", 0, -32)
     CreateTooltipTwo(petCastBarShowBorder, L["Tooltip_Show_Castbar_Border_Desc"], L["Tooltip_Show_Castbar_Border_Desc"])
 
@@ -4106,21 +4221,33 @@ local function guiCastbars()
     resetpetCastbar:SetWidth(70)
     resetpetCastbar:SetPoint("TOP", petCastbarBorder, "BOTTOM", 0, -2)
     resetpetCastbar:SetScript("OnClick", function()
-        petCastBarScale:SetValue(1)
+        petCastBarScale:SetMinMaxValues(0.5, 1.9)
+        petCastBarXPos:SetMinMaxValues(-200, 200)
+        petCastBarYPos:SetMinMaxValues(-200, 200)
+        petCastBarWidth:SetMinMaxValues(20, 200)
+        petCastBarHeight:SetMinMaxValues(5, 30)
+        petCastBarIconScale:SetMinMaxValues(0.4, 2)
+        petCastbarIconXPos:SetMinMaxValues(-200, 200)
+        petCastbarIconYPos:SetMinMaxValues(-50, 50)
+        petCastBarScale:SetValue(0.92)
         petCastBarIconScale:SetValue(1)
+        petCastbarIconXPos:SetValue(0)
+        petCastbarIconYPos:SetValue(0)
         petCastBarXPos:SetValue(0)
         petCastBarYPos:SetValue(0)
-        petCastBarWidth:SetValue(100)
-        petCastBarHeight:SetValue(12)
+        petCastBarWidth:SetValue(137)
+        petCastBarHeight:SetValue(10)
         petCastBarTimer:SetChecked(true)
+        showPetCastBarIcon:SetChecked(true)
         petCastBarShowText:SetChecked(true)
         petCastBarShowBorder:SetChecked(true)
         petDetachCastbar:SetChecked(false)
+        BetterBlizzFramesDB.showPetCastBarIcon = true
         BetterBlizzFramesDB.petCastBarShowText = true
         BetterBlizzFramesDB.petCastBarShowBorder = true
         BetterBlizzFramesDB.petDetachCastbar = false
         BetterBlizzFramesDB.petCastBarTimer = true
-        BBF.CastBarTimerCaller()
+        BBF.UpdatePetCastbar()
     end)
 
    ----------------------
@@ -4264,6 +4391,15 @@ local function guiCastbars()
     resetFocusCastbar:SetWidth(70)
     resetFocusCastbar:SetPoint("TOP", focusCastbarBorder, "BOTTOM", 0, -2)
     resetFocusCastbar:SetScript("OnClick", function()
+        focusCastBarScale:SetMinMaxValues(0.1, 1.9)
+        focusCastBarXPos:SetMinMaxValues(-130, 130)
+        focusCastBarYPos:SetMinMaxValues(-130, 130)
+        focusCastBarWidth:SetMinMaxValues(60, 220)
+        focusCastBarHeight:SetMinMaxValues(5, 30)
+        focusCastBarIconScale:SetMinMaxValues(0.4, 2)
+        focusCastbarIconXPos:SetMinMaxValues(-160, 160)
+        focusCastbarIconYPos:SetMinMaxValues(-160, 160)
+        focusToTAdjustmentOffsetY:SetMinMaxValues(-20, 50)
         focusCastBarScale:SetValue(1)
         focusCastBarIconScale:SetValue(1)
         focusCastBarXPos:SetValue(0)
@@ -4316,18 +4452,23 @@ local function guiCastbars()
     local playerCastBarYPos = CreateSlider(contentFrame, "y offset", -200, 200, 1, "playerCastBarYPos", "Y")
     playerCastBarYPos:SetPoint("TOP", playerCastBarXPos, "BOTTOM", 0, -15)
 
-    local playerCastBarIconScale = CreateSlider(contentFrame, "Icon Size", 0.4, 2, 0.01, "playerCastBarIconScale")
-    playerCastBarIconScale:SetPoint("TOP", playerCastBarYPos, "BOTTOM", 0, -15)
-
     local playerCastBarWidth = CreateSlider(contentFrame, "Width", 60, 230, 1, "playerCastBarWidth")
-    --playerCastBarWidth:SetPoint("TOP", playerCastBarYPos, "BOTTOM", 0, -15)
-    playerCastBarWidth:SetPoint("TOP", playerCastBarIconScale, "BOTTOM", 0, -15)
+    playerCastBarWidth:SetPoint("TOP", playerCastBarYPos, "BOTTOM", 0, -15)
 
     local playerCastBarHeight = CreateSlider(contentFrame, "Height", 5, 30, 1, "playerCastBarHeight")
     playerCastBarHeight:SetPoint("TOP", playerCastBarWidth, "BOTTOM", 0, -15)
 
+    local playerCastBarIconScale = CreateSlider(contentFrame, "Icon Size", 0.4, 2, 0.01, "playerCastBarIconScale")
+    playerCastBarIconScale:SetPoint("TOP", playerCastBarHeight, "BOTTOM", 0, -15)
+
+    local playerCastbarIconXPos = CreateSlider(contentFrame, L["Icon_X_Offset"], -300, 300, 1, "playerCastbarIconXPos")
+    playerCastbarIconXPos:SetPoint("TOP", playerCastBarIconScale, "BOTTOM", 0, -15)
+
+    local playerCastbarIconYPos = CreateSlider(contentFrame, L["Icon_Y_Offset"], -50, 50, 1, "playerCastbarIconYPos")
+    playerCastbarIconYPos:SetPoint("TOP", playerCastbarIconXPos, "BOTTOM", 0, -15)
+
     local playerCastBarShowIcon = CreateCheckbox("playerCastBarShowIcon", L["Icon"], contentFrame, nil, BBF.ShowPlayerCastBarIcon)
-    playerCastBarShowIcon:SetPoint("TOPLEFT", playerCastBarHeight, "BOTTOMLEFT", 10, -4)
+    playerCastBarShowIcon:SetPoint("TOPLEFT", playerCastbarIconYPos, "BOTTOMLEFT", 10, -4)
     CreateTooltip(playerCastBarShowIcon, L["Tooltip_Player_Castbar_Icon"])
 
     local playerCastBarTimer = CreateCheckbox("playerCastBarTimer", L["Timer"], contentFrame, nil, BBF.CastBarTimerCaller)
@@ -4352,8 +4493,18 @@ local function guiCastbars()
     resetPlayerCastbar:SetWidth(70)
     resetPlayerCastbar:SetPoint("TOP", playerCastbarBorder, "BOTTOM", 0, -2)
     resetPlayerCastbar:SetScript("OnClick", function()
+        playerCastBarScale:SetMinMaxValues(0.1, 1.9)
+        playerCastBarXPos:SetMinMaxValues(-200, 200)
+        playerCastBarYPos:SetMinMaxValues(-200, 200)
+        playerCastBarIconScale:SetMinMaxValues(0.4, 2)
+        playerCastbarIconXPos:SetMinMaxValues(-300, 300)
+        playerCastbarIconYPos:SetMinMaxValues(-50, 50)
+        playerCastBarWidth:SetMinMaxValues(60, 230)
+        playerCastBarHeight:SetMinMaxValues(5, 30)
         playerCastBarScale:SetValue(1)
         playerCastBarIconScale:SetValue(1)
+        playerCastbarIconXPos:SetValue(0)
+        playerCastbarIconYPos:SetValue(0)
         playerCastBarXPos:SetValue(0)
         playerCastBarYPos:SetValue(0)
         playerCastBarWidth:SetValue(195)
@@ -5033,11 +5184,11 @@ local function guiFrameLook()
     fontEditBox:SetSize(330, 20)
     fontEditBox:SetPoint("TOPLEFT", howStepOne, "BOTTOMLEFT", 5, -5)
     fontEditBox:SetAutoFocus(false)
-    fontEditBox:SetText("BBF.LSM:Register(\"font\", \"My Font Name\", [[Interface\\AddOns\\CustomMedia\\MyFontFile.ttf]], BBF.allLocales)")
+    fontEditBox:SetText("BBF.AddFont(\"MyFontName\")")
     fontEditBox:HighlightText()
     fontEditBox:SetCursorPosition(0)
     fontEditBox:SetScript("OnTextChanged", function(self)
-        fontEditBox:SetText("BBF.LSM:Register(\"font\", \"My Font Name\", [[Interface\\AddOns\\CustomMedia\\MyFontFile.ttf]], BBF.allLocales)")
+        fontEditBox:SetText("BBF.AddFont(\"MyFontName\")")
     end)
     fontEditBox:SetScript("OnMouseUp", function(self)
         self:SetFocus()
@@ -5054,11 +5205,11 @@ local function guiFrameLook()
     textureEditBox:SetSize(330, 20)
     textureEditBox:SetPoint("TOPLEFT", howStepTwo, "BOTTOMLEFT", 5, -5)
     textureEditBox:SetAutoFocus(false)
-    textureEditBox:SetText("BBF.LSM:Register(\"statusbar\", \"My Texture Name\", [[Interface\\AddOns\\CustomMedia\\MyTextureFile.tga]])")
+    textureEditBox:SetText("BBF.AddTexture(\"MyTextureName\")")
     textureEditBox:HighlightText()
     textureEditBox:SetCursorPosition(0)
     textureEditBox:SetScript("OnTextChanged", function(self)
-        textureEditBox:SetText("BBF.LSM:Register(\"statusbar\", \"My Texture Name\", [[Interface\\AddOns\\CustomMedia\\MyTextureFile.tga]])")
+        textureEditBox:SetText("BBF.AddTexture(\"MyTextureName\")")
     end)
     textureEditBox:SetScript("OnMouseUp", function(self)
         self:SetFocus()
@@ -5070,6 +5221,7 @@ local function guiFrameLook()
     howStepThree:SetFont(fontMedium, 12)
     howStepThree:SetPoint("TOPLEFT", textureEditBox, "BOTTOMLEFT", -5, -13)
     howStepThree:SetText(L["How_Custom_Media_3"])
+    howStepThree:SetWidth(330)
 
     local changeUnitFrameFont = CreateCheckbox("changeUnitFrameFont", L["Tooltip_Change_UnitFrame_Font_Desc"], guiFrameLook)
     changeUnitFrameFont:SetPoint("TOPLEFT", settingsText, "BOTTOMLEFT", -4, pixelsOnFirstBox)
@@ -5108,7 +5260,7 @@ local function guiFrameLook()
 
     -- For font outline
     local unitFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "Outline", "unitFrameFontOutline", {
-        "THICKOUTLINE", "THINOUTLINE", "NONE"
+        "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = unitFrameFont, x = 0, y = -5 }, 155)
@@ -5176,7 +5328,7 @@ local function guiFrameLook()
 
     -- For font outline
     local unitFrameValueFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "Outline", "unitFrameValueFontOutline", {
-        "THICKOUTLINE", "THINOUTLINE", "NONE"
+        "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = unitFrameValueFont, x = 0, y = -5 }, 155)
@@ -5238,7 +5390,7 @@ local function guiFrameLook()
 
     -- For font outline
     local partyFrameFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "Outline", "partyFrameFontOutline", {
-        "THICKOUTLINE", "THINOUTLINE", "NONE"
+        "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = partyFrameFont, x = 0, y = -5 }, 155)
@@ -5315,14 +5467,14 @@ local function guiFrameLook()
 
     -- For font outline
     local actionBarFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "Outline", "actionBarFontOutline", {
-        "THICKOUTLINE", "THINOUTLINE", "NONE"
+        "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFont, x = 0, y = -5 }, 77.5)
     CreateTooltipTwo(actionBarFontOutline, L["Tooltip_Macro_Text_Outline"])
 
     local actionBarKeyFontOutline = CreateSimpleDropdown("FontOutlineDropdown", guiFrameLook, "", "actionBarKeyFontOutline", {
-        "THICKOUTLINE", "THINOUTLINE", "NONE"
+        "THICKOUTLINE", "OUTLINE", ""
     }, function(selectedSize)
         BBF.SetCustomFonts()
     end, { anchorFrame = actionBarFontOutline, x = 77.5, y = 25 }, 77.5)
@@ -6558,6 +6710,20 @@ local function guiMisc()
 
     moveResourceToTarget:HookScript("OnClick", function()
         CheckAndToggleCheckboxes(moveResourceToTarget)
+    end)
+
+    local hidePlayerManabar = CreateCheckbox("hidePlayerManabar", L["Hide_PlayerFrame_Mana"], guiMisc)
+    hidePlayerManabar:SetPoint("TOPLEFT", moveResourceToTarget, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hidePlayerManabar, L["Hide_PlayerFrame_Mana"], L["Tooltip_Hide_Player_Manabar_Desc"])
+    hidePlayerManabar:HookScript("OnClick", function(self)
+        StaticPopup_Show("BBF_CONFIRM_RELOAD")
+    end)
+
+    local hideTargetManabar = CreateCheckbox("hideTargetManabar", L["Hide_TargetFrame_Mana"], guiMisc)
+    hideTargetManabar:SetPoint("TOPLEFT", hidePlayerManabar, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hideTargetManabar, L["Hide_TargetFrame_Mana"], L["Tooltip_Hide_Target_Manabar_Desc"])
+    hideTargetManabar:HookScript("OnClick", function(self)
+        StaticPopup_Show("BBF_CONFIRM_RELOAD")
     end)
 end
 

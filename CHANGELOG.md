@@ -1,3 +1,252 @@
+# BetterBlizzFrames 1.9.7g
+## Midnight
+### Tweak
+- Now checks for tullaCTC handling of aura cooldown text and ignores BBF setting if thats the case.
+### Bugfix
+- Fix error related to darkmode and tooltips due to secrets.
+
+# BetterBlizzFrames 1.9.7f
+## All versions
+### New
+- New setting for Party Castbars to force anchoring to default party frames instead of detected party frames addon. (Castbars section)
+## Midnight
+### Bugfix
+- Fix "Classic Castbar" setting for Player Castbar sometimes showing a big non-classic glow texture.
+
+# BetterBlizzFrames 1.9.7e
+## Midnight
+### Tweak
+- Tweak chat filters to add a few more spammy system messages and improve the detection method.
+
+# BetterBlizzFrames 1.9.7d
+## Midnight
+### Tweak
+- Tweak most chatframe filters to use Blizzard globals instead so it also accounts for localization and not just English.
+## All versions
+### Tweak
+- Party Castbars now supports other party addons as well (DandersFrames, ElvUI, Cell, Grid2, VuhDo & ShadowedUnitFrames)
+- Interrupt logic: Replace IsSpellKnown API call with IsPlayerSpell because IsSpellKnown returns false on known spells on some clients causing interrupt logic to not detect an interrupt.
+
+# BetterBlizzFrames 1.9.7c
+## Midnight
+### Bugfix
+- Fix layer issue introduced in 1.9.7b showing Stealth Indicator above PlayerFrame unintentionally. 
+
+# BetterBlizzFrames 1.9.7b
+## Midnight
+### Bugfix
+- Fix an issue with party castbars getting stuck on if party members left group while casting.
+- Fix overshield not updating immediately on the PRD when it was set to shown in combat only.
+- Fix a layering issue with overshields on normal UnitFrames.
+- Fix nil error related to new party castbars and castbar coloring.
+## All versions
+### Tweak
+- Update the new Midnight Stealth Indicator logic for all other versions too (and fix it for TBC).
+
+# BetterBlizzFrames 1.9.7
+## Midnight
+### New
+- Party and Pet castbars are back and working!
+- Overshields is fixed and back. If you have used an alternative then either turn off this setting or the alternative so you dont run it twice. (And again huge thanks to Verz (MiniCC, FrameSort, etc) for being the goat and helping me a bit here)
+- Hide External Defensives Tooltip (Misc).
+### Tweak
+- BetterBlizzFrames now makes External Defensives clickthrough by default so you can actually move your camera.
+### Bugfix
+- Fix "Arena Names" on Target/Focus sometimes showing wrong name.
+## The Burning Crusade
+### Bugfix
+- Add another detection method for spell interrupt ids so Earth Shock (and maybe others) should hopefully be picked up more consistently now.
+- Fix Overshields for enemy units showing absorb on entire healthbar (since they dont have proper health info in TBC). It will now just hide unless you have MiniHealthNumbers addon. If you get MiniHealthNumbers to calculate health on enemy units overshields will work on enemy targets.
+
+# BetterBlizzFrames 1.9.6d
+## Midnight
+### Tweak
+- Fix "Fix ActionBar Cooldowns During CC" removing existing cooldown entirely on macros for items (Trinket macro).
+
+# BetterBlizzFrames 1.9.6c
+## Midnight
+### Tweak
+- Fix and improve PlayerFrame stealth indicator (Misc) for Midnight.
+
+# BetterBlizzFrames 1.9.6b
+## All versions
+### Tweak
+- Add helper functions to make adding fonts & textures via custom code a little simpler. Guide in Font & Textures section updated, can now just use "BBF.AddFont("Fontname")" and "BBF.AddTexture("Texturename")".
+## Midnight
+### Bugfix
+- Fix forbidden error on darkmode tooltip hook.
+## The Burning Crusade
+### Bugfix
+- Fix custom code font validator
+
+# BetterBlizzFrames 1.9.6
+## Midnight
+### New
+- Cast Target Text: Show true target of who the spell is being cast on (Castbars section).
+- Cast On Me Highlight: Show red highlight around the castbar when the cast is being cast on the player (Castbars section).
+
+# BetterBlizzFrames 1.9.5l
+## Midnight
+### Tweak
+- Tweak darkmode aura border to show beneath the purge texture on target/focus frames.
+### Bugfix
+- Fix the Midnight version of "Fix ActionBar Cooldowns during CC" (Misc) not working properly as intended when you get CC'ed.
+## All classics
+### Bugfix
+- Fix combination of Bigger Healthbars (and disabled on PlayerFrame) + PlayerFrame No Mana + Elite Frame texture causing it to use the wrong texture.
+
+# BetterBlizzFrames 1.9.5k
+## Midnight
+### Tweak
+- Update Dissonance profle (www.twitch.tv/dissonancewow)
+## Mist of Pandaria
+### Tweak
+- Healing Absorb on Player/Target/Focus now appear identical as the ones on raidframes (dark overlay instead of green tint).
+## Classic Era
+### Bugfix
+- Fix status text on healthbars not being postioned correctly with Bigger Healthbars enabled from a previous patch adding the hide mana settings.
+
+# BetterBlizzFrames 1.9.5j
+## All versions
+### Bugfix
+- Fix issue with custom font addition validation causing fonts to not be added.
+## The Burning Crusade
+### New
+- Add "Improved Addon List" setting to TBC as well (Misc).
+### Tweak
+- Update absorb stuff to work on TBC. The accuracy of it is TBD.
+## All Classics
+### New
+- Add right-click options for "Bigger Healthbars" setting allowing you to disable it on individual frames.
+
+# BetterBlizzFrames 1.9.5i
+## Midnight
+### Tweak
+- Add Bartender4 support for "Fix ActionBar Cooldowns During CC" (Misc).
+
+# BetterBlizzFrames 1.9.5h
+## All versions
+### Bugfix
+- Fix an issue with adding fonts via custom code causing lua errors for others not having the font after Blizzard changes. Now it just uses default font if missing custom font.
+
+# BetterBlizzFrames 1.9.5g
+## Midnight
+### Bugfix
+- Fix lua error with hiding Dispel Overlay (this setting is likely gone now in 12.0.5, use Blizzards settings to hide it).
+
+# BetterBlizzFrames 1.9.5f
+## All versions
+### Bugfix
+- Fix issues related to font settings causing lua errors.
+
+# BetterBlizzFrames 1.9.5e
+## TBC
+### New
+- Add new "Hide Player/Target/Focus Mana" settings in Misc. These work both together with the Bigger Healthbar setting and with it off and extends the healthbar. (i forgot in last)
+
+# BetterBlizzFrames 1.9.5d
+## Midnight
+### Bugfix
+- Fix a lua error related to darkmode tooltips.
+## Classics (Era, TBC, MoP)
+### New
+- Add new "Hide Player/Target/Focus Mana" settings in Misc. These work both together with the Bigger Healthbar setting and with it off and extends the healthbar.
+### Bugfix
+- MoP: Fix issues with Bigger Healthbars setting and being in vehicle. Havent been able to test these for Era/TBC so not implemented there yet (if vehicles even exist).
+
+# BetterBlizzFrames 1.9.5c
+## Midnight
+### Bugfix
+- Fix a mistake in interrupt popup causing it to popup on abilities player was channeling and stopped.
+
+# BetterBlizzFrames 1.9.5b
+## Midnight
+### Bugfix
+- Fix a mistake in interrupt popup causing a lua error.
+
+# BetterBlizzFrames 1.9.5
+## Midnight
+### New
+- New setting for ChatFrame: Hide background (and tabs). Shows tabs on mouseover.
+- "Zoom ActionBars" setting now also work for Dominos bars.
+### Tweak
+- Add more missed tooltips for the darkmode tooltip setting.
+- "Quick Hide Castbars" setting no longer insta hides channel casts due to a combination of API restrictions and 20+ year old Blizzard bug making it so I cannot keep an interrupted channel castbar visible after kicking it.
+- Hook Duration text on BuffFrame's aura with dark mode enabled due to Duration text changing position from Blizzard updates.
+- "Class Color FrameTexture" setting now also works on the "Mini-PlayerFrame" etc settings.
+- OCD Tweaks now also fixes duration text on player buffs/debuffs going up into the border after Blizzard decided that was a great idea.
+### Bugfix
+- Fix Kick Popup not working when kicking channeled casts due to a 20+ year old Blizzard bug (i forgot).
+- Fix purge texture size on auras when the scale has been adjusted.
+- Fix parts of OCD Tweaks setting being unintentionally active when No Portrait was enabled causing it to look weird and other glitches.
+- Fix tooltip locale mistake on "Move Resource".
+## Classic Era
+### Tweak
+- Add missing castbar icon X/Y offset sliders for player and pet. By Shadeqt@GitHub
+- Improve darkmode setting for CompactPartyFrameMembers borders. By Shadeqt@GitHub
+### Bugfix
+- Fix many inconsistencies and some wrong values with castbar settings on Era. By Shadeqt@GitHub
+
+# BetterBlizzFrames 1.9.4d
+## Midnight
+### New
+- Add font outline & shadow settings for the Kick Popup feature. Outline is now default enabled.
+## Titan Reforged
+- Change Titan Reforged to load TBC files instead as a temporary solution because of new API changes. Very difficult for me to do any testing here so please report any errors with BugSack and BugGrabber.
+
+# BetterBlizzFrames 1.9.4c
+## The Burning Crusade
+### Tweak
+- Tweak Castbar Spark Heights to better fit castbars.
+## Classic Era
+### Tweak
+- Add missing reputation bar to dark mode. By Shadeqt@GitHub
+- Add bag icons to OCD Tweak's icon zoom. By Shadeqt@GitHub
+### Bugfix
+- Fix castbar icon border from darkmode showing without icon enabled. By Shadeqt@GitHub
+- Fix capitalization mistake in some pet castbar settings. By Shadeqt@GitHub
+
+# BetterBlizzFrames 1.9.4b
+## All versions
+- Add French localization by Timikana@GitHub. Thank you!
+## Midnight
+### Tweak
+- Fix "Fix ActionBar Cooldowns in CC" setting in Misc for Midnight.
+- Fix Nameplate/PRD instant combo points setting.
+- Add ExtraActionButton1 to hide hotkey setting.
+### Bugfix
+- Fix actionbar font change not applying of first time login.
+## Classic Era
+### Tweak
+- Thanks to Shadeqt@GitHub for all of these tweaks below.
+- Add MinimapBorderTop to minimap darkmode (was not being darkened)
+- Add dark borders to pet buff icons (PetFrameBuff1-16) with UNIT_AURA event hook for dynamic updates
+- Add dark borders around castbar spell icons (target, player, party, pet) with proper lifecycle (created on enable, cleaned up on disable, matching aura border pattern)
+- OCD icon zoom fix for pet and stance buttons
+- Fix Hide Combat Glow for PetFrame
+
+# BetterBlizzFrames 1.9.4
+## Midnight
+### New
+- Kick Popup: Show icon + spellname of the spell you interrupted. (/bbf -> Extra Features right side)
+### Tweak
+- Castbar Quick Hide fixed again to not immediately hide if the castbar was interrupted (so you can see it got interrupted and by who).
+- Sort some castbar color issues
+
+# BetterBlizzFrames 1.9.3i
+## Midnight
+### Bugfix
+- Add some secret checks to avoid potential errors.
+
+# BetterBlizzFrames 1.9.3h
+## Midnight
+### Bugfix
+- Fix healthbar sticking out a bit from frame on minus mobs for classic frames setting.
+- Fix castbar color logic if classic castbars were enabled but not classic frames.
+- Fix "DarkMode: Tooltip" covering gems on tooltip with dark overlay.
+- Fix "No Portrait: Pixel Border" settings pixel border on minus mobs' manabar being out of position.
+- Fix some player name changes not going through on login like RP names.
+
 # BetterBlizzFrames 1.9.3g
 ## Midnight
 ### Bugfix

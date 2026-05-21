@@ -458,18 +458,21 @@ local function GetNameWithoutRealm(frame)
     return UnitFullName(frame.unit)
 end
 
+local function UnitIsProbablyUnit(unit1, unit2)
+    if not UnitExists(unit1) or not UnitExists(unit2) then return end
+
+    return UnitClassBase(unit1) == UnitClassBase(unit2)
+       and UnitRace(unit1) == UnitRace(unit2)
+       and UnitHonorLevel(unit1) == UnitHonorLevel(unit2)
+end
+
 local function SetArenaName(frame, unit, textObject)
     if UnitIsUnit(unit, "player") then return end
+    if not UnitIsFriend(unit, "player") then return end
     local specName = GetSpecName(unit)
     local nameText
-    local isParty1 = UnitIsUnit(unit, "party1")
-    local partyID
-    if not issecretvalue(isParty1) then
-        partyID = isParty1 and " 1" or " 2"
-    else
-        partyID = " ?"
-    end
-
+    local isParty1 = UnitIsProbablyUnit(unit, "party1")
+    local partyID = isParty1 and " 1" or " 2"
 
     if specName then
         if showSpecName and showArenaID then
@@ -581,11 +584,13 @@ end
 
 local function HideRoleIcon(frame)
     if not hidePartyRoles then return end
+    if issecretvalue(frame) then return end
     if not frame.roleIcon then return end
     frame.roleIcon:SetAlpha(0)
 end
 local function HideRoleIconDefault(frame)
     if not hidePartyRoles then return end
+    if issecretvalue(frame) then return end
     frame.PartyMemberOverlay.RoleIcon:SetAlpha(0)
 end
 hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", HideRoleIcon)
@@ -850,9 +855,6 @@ end)
 
 
 local function SetPartyFont(font, size, outline, size2)
-    if outline == "NONE" then
-        outline = nil
-    end
     for i = 1, 5 do
         local frame = _G["CompactPartyFrameMember"..i]
         if frame then
@@ -917,9 +919,6 @@ end
 
 
 local function SetUnitFramesFont(font, size, outline)
-    if outline == "NONE" then
-        outline = nil
-    end
     local anyFailed = false
     for _, frame in ipairs(frames) do
         local newSize = size
@@ -1051,9 +1050,6 @@ local function SetUnitFramesValuesFont(font, size, outline)
             end
         end
 
-        if newOutline == "NONE" then
-            newOutline = nil
-        end
 
         textObject:SetFont(newFont, newSize, newOutline)
     end
@@ -1080,7 +1076,7 @@ local function SetActionBarFonts(font, size, kbSize, outline, kbOutline, chargeS
             local hotKeyText = _G[buttonPrefix .. i .. "HotKey"]
             if hotKeyText then
                 local ogFont, ogSize, ogOutline = hotKeyText:GetFont()
-                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or nil
+                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or ""
                 hotKeyText:SetFont((hotKeyText:GetText() == "●" and ogFont) or font or ogFont, kbSize or ogSize, finalOutline)
             end
 
@@ -1094,7 +1090,7 @@ local function SetActionBarFonts(font, size, kbSize, outline, kbOutline, chargeS
             local chargeText = _G[buttonPrefix .. i .. "Count"]
             if chargeText and BetterBlizzFramesDB.actionBarChangeCharge then
                 local ogFont, ogSize, ogOutline = chargeText:GetFont()
-                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or nil
+                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or ""
                 chargeText:SetFont(font or ogFont, chargeSize or ogSize, finalOutline)
             end
         end
@@ -1121,7 +1117,7 @@ local function SetActionBarFonts(font, size, kbSize, outline, kbOutline, chargeS
             local hotKeyText = _G[bar.name .. i .. "HotKey"]
             if hotKeyText then
                 local ogFont, ogSize, ogOutline = hotKeyText:GetFont()
-                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or nil
+                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or ""
                 hotKeyText:SetFont((hotKeyText:GetText() == "●" and ogFont) or font or ogFont, kbSize or ogSize, finalOutline)
             end
 
@@ -1135,11 +1131,18 @@ local function SetActionBarFonts(font, size, kbSize, outline, kbOutline, chargeS
             local chargeText = _G[bar.name .. i .. "Count"]
             if chargeText and BetterBlizzFramesDB.actionBarChangeCharge then
                 local ogFont, ogSize, ogOutline = chargeText:GetFont()
-                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or nil
+                local finalOutline = kbOutline or (ogOutline ~= "NONE" and ogOutline) or ""
                 chargeText:SetFont(font or ogFont, chargeSize or ogSize, finalOutline)
             end
         end
     end
+
+    local verifyButton = _G["ActionButton1Name"]
+    if verifyButton then
+        local verifyFont = verifyButton:GetFont()
+        return verifyFont == font
+    end
+    return true
 end
 
 
@@ -1253,7 +1256,7 @@ function BBF.SetCustomFonts()
         local fontPath = LSM:Fetch(LSM.MediaType.FONT, fontName)
         local fontSize = db.partyFrameFontSize or 10
         local fontSize2 = db.partyFrameStatusFontSize or 10
-        local outline = db.partyFrameFontOutline or "THINOUTLINE"
+        local outline = db.partyFrameFontOutline or "OUTLINE"
 
         SetPartyFont(fontPath, fontSize, outline, fontSize2)
 
@@ -1278,6 +1281,7 @@ function BBF.SetCustomFonts()
             if C_CVar.GetCVar("raidOptionDisplayPets") == "1" or C_CVar.GetCVar("raidOptionDisplayMainTankAndAssist") == "1" then
                 hooksecurefunc("DefaultCompactMiniFrameSetup", SetRaidFramePetFont)
                 hooksecurefunc("CompactUnitFrame_SetUnit", function(frame)
+                    if issecretvalue(frame) then return end
                     if frame.unit and (frame.unit:match("raidpet") or frame.unit:match("target")) then
                         SetRaidFramePetFont(frame)
                     end
@@ -1293,7 +1297,7 @@ function BBF.SetCustomFonts()
         local fontName = db.unitFrameFont
         local fontPath = LSM:Fetch(LSM.MediaType.FONT, fontName)
         local fontSize = db.unitFrameFontSize or 10
-        local outline = db.unitFrameFontOutline or "THINOUTLINE"
+        local outline = db.unitFrameFontOutline or "OUTLINE"
 
         if not SetUnitFramesFont(fontPath, fontSize, outline) then
             needsRetry = true
@@ -1305,17 +1309,19 @@ function BBF.SetCustomFonts()
         local fontPath = LSM:Fetch(LSM.MediaType.FONT, fontName)
         local fontSize = db.actionBarFontSize or 10
         local kbSize = db.actionBarKeyFontSize or 10
-        local outline = db.actionBarFontOutline or "THINOUTLINE"
-        local kbOutline = db.actionBarKeyFontOutline or "THINOUTLINE"
+        local outline = db.actionBarFontOutline or "OUTLINE"
+        local kbOutline = db.actionBarKeyFontOutline or "OUTLINE"
         local chargeSize = db.actionBarChargeFontSize or 14
-        SetActionBarFonts(fontPath, fontSize, kbSize, outline, kbOutline, chargeSize)
+        if not SetActionBarFonts(fontPath, fontSize, kbSize, outline, kbOutline, chargeSize) then
+            needsRetry = true
+        end
     end
 
     if db.changeUnitFrameValueFont then
         local fontName = db.unitFrameValueFont
         local fontPath = LSM:Fetch(LSM.MediaType.FONT, fontName)
         local fontSize = db.unitFrameValueFontSize or 10
-        local outline = db.unitFrameValueFontOutline or "THINOUTLINE"
+        local outline = db.unitFrameValueFontOutline or "OUTLINE"
 
         if not SetUnitFramesValuesFont(fontPath, fontSize, outline) then
             needsRetry = true
@@ -1396,9 +1402,16 @@ local unitToArenaName = {
 }
 
 local function GetArenaUnitName(unit)
-    for arenaUnit, arenaName in pairs(unitToArenaName) do
-        if UnitIsUnit(unit, arenaUnit) then
-            return arenaName
+    local isFriendly = UnitIsFriend(unit, "player")
+    local candidates
+    if isFriendly then
+        candidates = { "party1", "party2" }
+    else
+        candidates = { "arena1", "arena2", "arena3" }
+    end
+    for _, arenaUnit in ipairs(candidates) do
+        if UnitExists(arenaUnit) and UnitIsProbablyUnit(unit, arenaUnit) then
+            return unitToArenaName[arenaUnit]
         end
     end
     return nil
@@ -1480,6 +1493,12 @@ local function PlayerFrameNameChanges(frame)
         PlayerLevelText:SetTextColor(classColor.r, classColor.g, classColor.b)
     end
 end
+C_Timer.After(1, function()
+    PlayerFrameNameChanges(PlayerFrame)
+end)
+C_Timer.After(2, function() --lol idk deal with it later (rp name/text/iforget)
+    PlayerFrameNameChanges(PlayerFrame)
+end)
 
 
 local function TargetFrameNameChanges(frame)

@@ -1,65 +1,60 @@
-# BetterBlizzFrames 1.9.3g
+# BetterBlizzFrames 1.9.7g
+## Midnight
+### Tweak
+- Now checks for tullaCTC handling of aura cooldown text and ignores BBF setting if thats the case.
+### Bugfix
+- Fix error related to darkmode and tooltips due to secrets.
+
+# BetterBlizzFrames 1.9.7f
+## All versions
+### New
+- New setting for Party Castbars to force anchoring to default party frames instead of detected party frames addon. (Castbars section)
 ## Midnight
 ### Bugfix
-- Fix aura durations on Player Auras not showing if moving auras upwards + dark mode.
+- Fix "Classic Castbar" setting for Player Castbar sometimes showing a big non-classic glow texture.
 
-# BetterBlizzFrames 1.9.3f
-## All
-### Bugfix
-- Fix an issue causing custom fonts to not load on first time login on some elements but fixed by a /reload.
+# BetterBlizzFrames 1.9.7e
+## Midnight
+### Tweak
+- Tweak chat filters to add a few more spammy system messages and improve the detection method.
+
+# BetterBlizzFrames 1.9.7d
+## Midnight
+### Tweak
+- Tweak most chatframe filters to use Blizzard globals instead so it also accounts for localization and not just English.
+## All versions
+### Tweak
+- Party Castbars now supports other party addons as well (DandersFrames, ElvUI, Cell, Grid2, VuhDo & ShadowedUnitFrames)
+- Interrupt logic: Replace IsSpellKnown API call with IsPlayerSpell because IsSpellKnown returns false on known spells on some clients causing interrupt logic to not detect an interrupt.
+
+# BetterBlizzFrames 1.9.7c
 ## Midnight
 ### Bugfix
-- Fix issues with interrupt color. /pray its better now.
-- Fix castbar color issue getting stuck red on finished casts.
-- Fix a secret error.
+- Fix layer issue introduced in 1.9.7b showing Stealth Indicator above PlayerFrame unintentionally. 
 
-# BetterBlizzFrames 1.9.3e
+# BetterBlizzFrames 1.9.7b
+## Midnight
+### Bugfix
+- Fix an issue with party castbars getting stuck on if party members left group while casting.
+- Fix overshield not updating immediately on the PRD when it was set to shown in combat only.
+- Fix a layering issue with overshields on normal UnitFrames.
+- Fix nil error related to new party castbars and castbar coloring.
+## All versions
+### Tweak
+- Update the new Midnight Stealth Indicator logic for all other versions too (and fix it for TBC).
+
+# BetterBlizzFrames 1.9.7
 ## Midnight
 ### New
-- Add Dissonance profile (www.twitch.tv/dissonancewow). Ty for sharing.
+- Party and Pet castbars are back and working!
+- Overshields is fixed and back. If you have used an alternative then either turn off this setting or the alternative so you dont run it twice. (And again huge thanks to Verz (MiniCC, FrameSort, etc) for being the goat and helping me a bit here)
+- Hide External Defensives Tooltip (Misc).
+![castbarsAndOvershields](https://github.com/user-attachments/assets/fdf2b502-459f-4d82-bde3-26086d5ab39e)
 ### Tweak
-- CDM: Center Icons now also centers vertical ones. For Vertical ones the Icon Direction setting in Edit Mode will decide which side any icons going over the row limit gets centered on. Up for on the right side and down for the left side. This may change your setup a bit.
-- Fix frame level for manabar for non-grouped raidframes with the Better Target Highlight setting.
-- Move Player Auras (topright) duration text on buffs down a little (after blizzard moved them up) when Darkmode: Auras is enabled to give the border some space and not overlap the duration.
-- Update Venruki and Wolf profile. Ty for sharing.
+- BetterBlizzFrames now makes External Defensives clickthrough by default so you can actually move your camera.
 ### Bugfix
-- Fix issues with the kick tracking/coloring. Should be better now hopefully.
-
-# BetterBlizzFrames 1.9.3d
-## Midnight
+- Fix "Arena Names" on Target/Focus sometimes showing wrong name.
+## The Burning Crusade
 ### Bugfix
-- Fix "Better Target Highlight" showing on nameplates. Oops.
-- Fix CDM: Center Icons affecting the gap setting unintentionally. Due to this you may have to adjust ur gap setting in edit mode for it.
-- Fix CDM: Center Icons setting not centering the buff icons properly.
-- Fix big debuffs aura logic not filtering out trash auras
-
-# BetterBlizzFrames 1.9.3c
-## Midnight
-### Bugfix
-- Fix cooldown stuff that needed updating for new api changes that slipped through the cracks of my sleep deprived ass.
-- Fix the new party highlight seting to work properly on raidframes too.
-### Tweak
-- Fix offsets for darkmode border on Player Auras (topright next to minimap)
-
-# BetterBlizzFrames 1.9.3b
-## Midnight
-### Tweak
-- Fix cooldown stuff for upcoming Midnight changes.
-### Bugfix
-- Fix the "Hide Shadow" setting for All Frames not working on rares.
-
-# BetterBlizzFrames 1.9.3
-## Midnight
-### New
-- Add Jazggz profile (www.twitch.tv/jazggz). Thank you for sharing <3
-- New "Improved Target Highlight" setting for PartyFrames (General).
-- New "Hide Dispel Icon" sub-setting for "Hide Dispel Overlay" for PartyFrames (General).
-- New "Change ActionBar CD Size" setting (Misc).
-- New "Hide All Manabar Text" setting (Misc).
-### Tweak
-- Interrupt Icon no longer shows up on un-interruptible casts like how it used to before Midnight.
-- Add few more Edit Mode stuff to the Edit Mode transparancy slider.
-- Change border style a bit on PartyFrames due to a secret issue in Blizzards code.
-### Bugfix
-- Fix secret error issue due to aura borders on partyframe doing some lua errors.
-- Temporary fix with debug print on secret error on party arena names settings. Pls report if you see it.
+- Add another detection method for spell interrupt ids so Earth Shock (and maybe others) should hopefully be picked up more consistently now.
+- Fix Overshields for enemy units showing absorb on entire healthbar (since they dont have proper health info in TBC). It will now just hide unless you have MiniHealthNumbers addon. If you get MiniHealthNumbers to calculate health on enemy units overshields will work on enemy targets.
